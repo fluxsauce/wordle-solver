@@ -13,5 +13,9 @@
     "sort"
   ],
   "author": "jpeck@fluxsauce.com",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^8.3.0",
+    "prompt": "^1.2.1"
+  }
 }
