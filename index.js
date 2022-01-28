@@ -10,13 +10,27 @@ prompt.start();
 const guesses = [];
 // TODO: Set from commander.
 const length = 5;
+// TODO: Set backend
 
 function loop() {
     prompt.get(['word', 'result'], (err, input) => {
         if (err) {
             process.exit(1);
         }
+        if (input.word === 'undo') {
+            guesses.pop();
+            return loop();
+        }
+
+        input.word = input.word.toUpperCase();
+        input.result = input.result.toUpperCase();
+
         guesses.push({ word: input.word, result: input.result });
+
+        if (input.result === 'Y'.repeat(length)) {
+            console.log(`${guesses.length} guess(es)`);
+            process.exit(0);
+        }
         
         // Input.
         let exact = [];
@@ -39,7 +53,7 @@ function loop() {
         const dictionary = dictionaryInit(length);
         
         // Exact match.
-        let exact_pattern = '.....';
+        let exact_pattern = '.'.repeat(length);
         exact.forEach(letter_pos => {
             exact_pattern = exact_pattern.substring(0, letter_pos.position)
                 + letter_pos.letter
@@ -67,9 +81,10 @@ function loop() {
             if (element === '') {
                 close_pattern += '.';
             } else {
-                close_pattern += '[' + element + ']';
+                close_pattern += '[^' + element + ']';
             }
         });
+        close_pattern = `^${close_pattern}$`
         
         const result = dictionary.filter(word => {
             const negative = word.match(negative_pattern);
@@ -77,15 +92,21 @@ function loop() {
             const exact = word.match(exact_pattern);
             const close_not = word.match(close_pattern);
             let close_contains = true;
-            
+
             if (close.length > 0) {
-                close_contains = word.match(close.map(letter_pos => `(?=.*${letter_pos.letter})`).join('')); 
+                close.forEach(letter_pos => {
+                    if (word.indexOf(letter_pos.letter) === -1) {
+                        close_contains = false;
+                    }
+                });
             }
 
-            if (word === 'PERKY') {
-                console.log('negative: ', negative_pattern);
-                console.log('exact: ', exact_pattern);
-                console.log('close: ', close_pattern);
+            if (false) {
+                console.log('negative_pattern: ', negative_pattern);
+                console.log('exact_pattern: ', exact_pattern);
+                console.log('close: ', close);
+                console.log('close_pattern: ', close_pattern);
+                console.log('close_not: ', close_not);
                 console.log('close_contains: ', close_contains);    
             }
         
@@ -112,7 +133,7 @@ function loop() {
         
         console.log(result.reverse());
 
-        loop();
+        return loop();
     });
 }
 
