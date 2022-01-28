@@ -1,20 +1,9 @@
 const fs = require('fs');
 
 const guesses = [
-    /*
-    { word: 'FIRST', result: 'NNYNN' },
-    { word: 'MURKY', result: 'NNYYY' },
-    */
-   /*
-    { word: 'MOIST', result: 'NNNNN' },
-    { word: 'FUZZY', result: 'NNNNY' },
-    { word: 'GAWKY', result: 'NNNYY' },
-    { word: 'PECKY', result: 'YYNYY' },
-    */
-   { word: 'RETIA', result: '?YNNN' },
-   { word: 'SENOR', result: 'NYNN?' },
-   { word: 'PERCH', result: 'YYYNN' },
-   { word: 'PERDU', result: 'YYYNN' },
+   { word: 'ABOUT', result: 'NNNNN' },
+   { word: 'WHICH', result: 'NNNNN' },
+   { word: 'LEVEL', result: 'NYNNN' }
 ];
 
 // Input.
@@ -33,18 +22,7 @@ guesses.forEach(guess => {
         }
     });
 });
-/*
-const exact = [
-    { letter: 'R', position: 2 },
-];
-const close = [
-    { letter: 'P', position: 4 },
-    { letter: 'E', position: 1 },
-];
-const not = ['A'];
-*/
 
-console.log(exact, close, not);
 const length = 5;
 
 // Setup.
@@ -53,6 +31,26 @@ const dictionary = fs
     .toString()
     .split('\n')
     .filter(word => word.length === length);
+
+const frequencies = new Map();
+
+fs
+    .readFileSync('./unigram_freq.csv', 'utf8')
+    .toString()
+    .split('\n')
+    .filter(row => {
+        const columns = row.split(',');
+        if (columns[1] === 'count') {
+            return false;
+        }
+        if (columns[0].length !== 5) {
+            return false;
+        }
+        const word = columns[0].toUpperCase();
+        const weight = parseInt(columns[1], 10);
+        frequencies.set(word, weight);
+        return true;
+    });
 
 // https://www3.nd.edu/~busiforc/handouts/cryptography/letterfrequencies.html
 const frequencyWeighting = new Map()
@@ -104,7 +102,10 @@ exact.forEach(letter_pos => {
 });
 
 // Negative match.
-const negative_pattern = '[' + not.join('') + ']';
+const nowhere = not.filter(letter => {
+    return !close.some(e => e.letter === letter) && !exact.some(e => e.letter === letter);
+});
+const negative_pattern = '^[^' + nowhere.join('') + ']*$';
 
 // Close match.
 close_array = Array(length).fill('');
@@ -121,31 +122,46 @@ close_array.forEach(element => {
     if (element === '') {
         close_pattern += '.';
     } else {
-        close_pattern += '[^' + element + ']';
+        close_pattern += '[' + element + ']';
     }
 });
 
 const result = dictionary.filter(word => {
     const negative = word.match(negative_pattern);
+    
     const exact = word.match(exact_pattern);
     const close_not = word.match(close_pattern);
-    const close_contains = word.match(close.map(letter_pos => `(?=.*${letter_pos.letter})`).join('')); 
-    return exact && close_not && close_contains && !negative;
-});
-
-// Sort by weight.
-result.sort((a, b) => {
-    const weightA = calculateWeight(a);
-    const weightB = calculateWeight(b);
+    let close_contains = true;
     
-    return weightA - weightB;
+    if (close.length > 0) {
+        close_contains = word.match(close.map(letter_pos => `(?=.*${letter_pos.letter})`).join('')); 
+    }
+
+    return exact && close_not && close_contains && negative;
 });
 
+// Sort by word frequency.
+result.sort((a, b) => {
+    const freqA = frequencies.get(a) || 0;
+    const freqB = frequencies.get(b) || 0;
+
+    return freqA - freqB;
+});
+
+// Sort by character weight.
+// result.sort((a, b) => {
+//     const weightA = calculateWeight(a);
+//     const weightB = calculateWeight(b);
+    
+//     return weightA - weightB;
+// });
+
+// Uniqueness.
 result.sort((a, b) => {
     const uniqueA = [...new Set(a)].length;
     const uniqueB = [...new Set(b)].length;
 
     return uniqueA - uniqueB;
-})
+});
 
 console.log(result.reverse());
