@@ -1,36 +1,54 @@
-const { program } = require('commander');
+const { program, Option } = require('commander');
 const prompt = require('prompt');
 const charWeight = require('./lib/char_freq');
 const wordWeight = require('./lib/word_freq');
 const dictionaryInit = require('./lib/dictionary');
 
-program.version('1.0.0');
-prompt.start();
+program
+    .version('1.0.0')
+    .option('-l, --length <chars>', 'length of word', 5)
+    .option('-d, --debug', 'display debugging')
+    .addOption(new Option('-m, --method <type>', 'methodolgy').choices(['char', 'word']).default('word'))
+    .showHelpAfterError();
+program.parse();
+const options = program.opts();
+
+const length = parseInt(options.length, 10);
+console.log(`Word length: ${length}`)
+console.log(`Method: ${options.method}`);
 
 const guesses = [];
-// TODO: Set from commander.
-const length = 5;
-// TODO: Set backend
+let guess_count = 0;
+
+prompt.start();
 
 function loop() {
+    console.log();
+    console.log(`Guess count: ${guess_count}`);
+
     prompt.get(['word', 'result'], (err, input) => {
         if (err) {
             process.exit(1);
         }
         if (input.word === 'undo') {
             guesses.pop();
+            guess_count--;
             return loop();
         }
 
         input.word = input.word.toUpperCase();
         input.result = input.result.toUpperCase();
 
-        guesses.push({ word: input.word, result: input.result });
-
         if (input.result === 'Y'.repeat(length)) {
-            console.log(`${guesses.length} guess(es)`);
+            console.log(`${guess_count} guess(es)`);
             process.exit(0);
         }
+
+        if (input.word !== '') {
+            guess_count++;
+        }
+
+        guesses.push({ word: input.word, result: input.result });
         
         // Input.
         let exact = [];
@@ -101,7 +119,7 @@ function loop() {
                 });
             }
 
-            if (false) {
+            if (options.debug) {
                 console.log('negative_pattern: ', negative_pattern);
                 console.log('exact_pattern: ', exact_pattern);
                 console.log('close: ', close);
@@ -114,14 +132,18 @@ function loop() {
         });
         
         // Sort by word frequency.
-        result.sort((a, b) => {
-            return wordWeight(a) - wordWeight(b);
-        });
+        if (options.method === 'word') {
+            result.sort((a, b) => {
+                return wordWeight(a) - wordWeight(b);
+            });
+        }
         
         // Sort by character weight.
-        // result.sort((a, b) => {
-        //     return charWeight(a) - charWeight(b);
-        // });
+        if (options.method === 'char') {
+            result.sort((a, b) => {
+                return charWeight(a) - charWeight(b);
+            });
+        }
         
         // Uniqueness.
         result.sort((a, b) => {
