@@ -1,5 +1,5 @@
 # wordle-solver
-An optimized Wordle text puzzle solver.
+An over-engineered Wordle text puzzle solver.
 
 ```bash
 npm i
@@ -9,7 +9,7 @@ npm i
 node ./index.js --help
 Usage: index [options]
 
-An optimized Wordle text puzzle solver.
+An over-engineered Wordle text puzzle solver.
 
 Options:
   -V, --version         output the version number

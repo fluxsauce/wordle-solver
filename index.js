@@ -6,7 +6,7 @@ const dictionaryInit = require('./lib/dictionary');
 
 program
   .version('1.0.0')
-  .description('An optimized Wordle text puzzle solver.')
+  .description('An over-engineered Wordle text puzzle solver.')
   .option('-l, --length <chars>', 'length of word', 5)
   .option('-d, --debug', 'display debugging')
   .addOption(new Option('-m, --method <type>', 'methodolgy').choices(['char', 'word']).default('word'))
