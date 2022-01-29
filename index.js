@@ -18,37 +18,70 @@ console.log(`Word length: ${length}`);
 console.log(`Method: ${options.method}`);
 
 const guesses = [];
-let guessCount = 0;
+let guessCount = 1;
 
 prompt.start();
 
 function loop() {
   console.log();
-  console.log(`Guess count: ${guessCount}`);
+  console.log(`Guess #${guessCount}`);
 
   prompt.get(['word', 'result'], (err, input) => {
     if (err) {
       process.exit(1);
     }
+
+    // We make mistakes.
     if (input.word === 'undo') {
       guesses.pop();
       guessCount -= 1;
       return loop();
     }
 
+    // Normalize input.
     const word = input.word.toUpperCase();
     const result = input.result.toUpperCase();
 
+    // Start validation.
+    const errors = [];
+
+    // Validation - word.
+    const validateWordPattern = new RegExp(`^$|^[A-Z]{${length}}$`);
+    const validateWordResult = validateWordPattern.test(word);
+    if (!validateWordResult) {
+      errors.push(`The word must only contain the letters A through Z and be ${length} character(s) long`);
+    }
+
+    // Validation - result.
+    const validateResultPattern = new RegExp(`^$|[YN?]{${length}}$`);
+    const validateResultResult = validateResultPattern.test(result);
+    if (!validateResultResult) {
+      errors.push(`The result must only contain Y, N or ? and be ${length} character(s) long`);
+    }
+
+    // Validation - debug.
+    if (options.debug) {
+      console.debug('Word Validation', validateWordPattern, validateResultResult);
+      console.debug('Result Validation', validateResultPattern, validateResultResult);
+    }
+
+    // Validation - bail if incorrect.
+    if (errors.length > 0) {
+      errors.forEach((error) => console.error(`  Error: ${error}`));
+      return loop();
+    }
+
+    // Success!
     if (input.result === 'Y'.repeat(length)) {
-      console.log(`${guessCount} guess(es)`);
+      console.log();
+      console.log(`Success in ${guessCount} guess(es)!`);
       process.exit(0);
     }
 
     if (input.word !== '') {
       guessCount += 1;
+      guesses.push({ word, result });
     }
-
-    guesses.push({ word, result });
 
     // Input.
     const exact = [];
@@ -119,12 +152,12 @@ function loop() {
       }
 
       if (options.debug) {
-        console.log('negativePattern: ', negativePattern);
-        console.log('exactPattern: ', exactPattern);
-        console.log('close: ', close);
-        console.log('closePattern: ', closePattern);
-        console.log('closeNot: ', closeNot);
-        console.log('closeContains: ', closeContains);
+        console.debug('negativePattern: ', negativePattern);
+        console.debug('exactPattern: ', exactPattern);
+        console.debug('close: ', close);
+        console.debug('closePattern: ', closePattern);
+        console.debug('closeNot: ', closeNot);
+        console.debug('closeContains: ', closeContains);
       }
 
       return exactMatchResult && closeNot && closeContains && negativeResult;
