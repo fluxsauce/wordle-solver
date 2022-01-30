@@ -47,7 +47,7 @@ function loop() {
     }
 
     // Validation - result.
-    const validateResultPattern = new RegExp(`^$|[YN?]{${length}}$`);
+    const validateResultPattern = new RegExp(`^$|^[YN?]{${length}}$`);
     const validateResultResult = validateResultPattern.test(result);
     if (!validateResultResult) {
       errors.push(`The result must only contain Y, N or ? and be ${length} character(s) long`);
