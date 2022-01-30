@@ -18,7 +18,6 @@ Options:
   -m, --method <type>   methodolgy (choices: "char", "word", default: "word")
   -h, --help            display help for command
 
-
 For each guess, provide a word and the result.
 
 - Word: A-Z letters only, capitalized or lowercase.
