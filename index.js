@@ -27,7 +27,7 @@ function loop() {
     const result = input.result.toUpperCase();
 
     // We make mistakes.
-    if (input.word === 'undo') {
+    if (input.word === 'UNDO') {
       if (guesses.length > 0) {
         guesses.pop();
         guessCount -= 1;
@@ -40,7 +40,7 @@ function loop() {
     const errors = [];
 
     // Validation - word.
-    const validateWordPattern = new RegExp(`^$|^[A-Z]{${length}}$`);
+    const validateWordPattern = new RegExp(`^$|^[A-Z]{${length}}$|^UNDO$`);
     const validateWordResult = validateWordPattern.test(word);
     if (!validateWordResult) {
       errors.push(`The word must only contain the letters A through Z and be ${length} character(s) long`);
