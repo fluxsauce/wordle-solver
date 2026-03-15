@@ -1,24 +1,24 @@
 {
-  "name": "wordle-solver",
-  "version": "1.0.0",
-  "description": "An over-engineered Wordle text puzzle solver.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "wordle",
-    "text",
-    "grep",
-    "sort"
-  ],
-  "author": "jpeck@fluxsauce.com",
-  "license": "ISC",
-  "dependencies": {
-    "commander": "^14.0.3",
-    "prompt": "^1.3.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.4.7"
-  }
+	"name": "wordle-solver",
+	"version": "1.0.0",
+	"description": "An over-engineered Wordle text puzzle solver.",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"wordle",
+		"text",
+		"grep",
+		"sort"
+	],
+	"author": "jpeck@fluxsauce.com",
+	"license": "ISC",
+	"dependencies": {
+		"commander": "^14.0.3",
+		"prompt": "^1.3.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.7"
+	}
 }
